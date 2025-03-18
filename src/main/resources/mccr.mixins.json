@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "icu.takeneko.mccr.mixin",
+  "compatibilityLevel": "${compatibility_level}",
+  "mixins": [
+  ],
+  "client": [
+    "client.CommandSuggestionsMixin"
+  ],
+  "server": [
+    "CommandsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

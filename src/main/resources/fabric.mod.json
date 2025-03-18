@@ -4,25 +4,29 @@
   "version": "${version}",
 
   "name": "${name}",
-  "description": "Template for my fabric mods",
+  "description": "MCDR Command Completer",
   "authors": [
-    "Fallen_Breath"
+    "ZhuRuoLing",
+    "DancingSnow"
   ],
   "contact": {
     "homepage": "https://modrinth.com",
     "sources": "https://github.com/Fallen-Breath/fabric-mod-template"
   },
 
-  "icon": "assets/template_mod/icon.png",
+  "icon": "assets/mccr/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.fallenbreath.template_mod.TemplateMod"
+      "icu.takeneko.mccr.Mod"
+    ],
+    "client": [
+      "icu.takeneko.mccr.client.ClientMod"
     ]
   },
   "mixins": [
-    "template_mod.mixins.json"
+    "mccr.mixins.json"
   ],
 
   "depends": {

@@ -1,0 +1,40 @@
+/*
+ * This file is part of the MCDRCommandCompletionReforged project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  ZhuRuoLing, DancingSnow and contributors
+ *
+ * MCDRCommandCompletionReforged is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MCDRCommandCompletionReforged is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MCDRCommandCompletionReforged.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package icu.takeneko.mccr;
+
+import icu.takeneko.mccr.networking.Networking;
+import net.fabricmc.api.ModInitializer;
+import net.minecraft.resources.ResourceLocation;
+
+public class Mod implements ModInitializer {
+
+    public static ResourceLocation location(String location){
+        //#if MC > 12006
+        return ResourceLocation.fromNamespaceAndPath("mccr", location);
+        //#else
+        //$$ return new ResourceLocation("mccr", location);
+        //#endif
+    }
+
+    @Override
+    public void onInitialize() {
+        Networking.register();
+    }
+}
