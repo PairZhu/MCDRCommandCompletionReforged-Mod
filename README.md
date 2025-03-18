@@ -5,6 +5,8 @@ _✨ 另一种奇妙实现的客户端MCDR命令补全 ✨_
 
 </div>
 
+[Readme en_US](/README_en.md)
+
 > [!WARNING]  
 > 需要搭配 [MCDR插件](https://github.com/DancingSnow0517/MCDRCommandCompleterReforged) 使用
 
