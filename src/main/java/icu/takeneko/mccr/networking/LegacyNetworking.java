@@ -72,7 +72,7 @@ public class LegacyNetworking {
             //$$ icu.takeneko.mccr.CompletionService.requestCompletion(player, content)
             //$$     .thenAccept(it -> {
             //$$             FriendlyByteBuf buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
-            //$$             new ClientboundCompletionResultPacket(it, this.session).encode(buf);
+            //$$             new ClientboundCompletionResultPacket(it.getCompletion(), it.getHint(), this.session).encode(buf);
             //$$             sender.sendPacket(ClientboundCompletionResultPacket.ID, buf);
             //$$         }
             //$$     );
