@@ -50,7 +50,9 @@ public class CompletionService {
                         player.getGameProfile().getName(),
                         URLEncoder.encode(command, Charset.defaultCharset())
                     ))
-                ).build();
+                )
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
             return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(it -> gson.fromJson(it.body(), String[].class))
                 .thenApply(List::of);
