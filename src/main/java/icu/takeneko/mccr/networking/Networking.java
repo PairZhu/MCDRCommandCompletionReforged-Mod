@@ -21,6 +21,7 @@
 
 package icu.takeneko.mccr.networking;
 
+import icu.takeneko.mccr.CompletionResult;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 //#if MC >= 12006
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -44,7 +45,7 @@ public class Networking {
 
     //#endif
 
-    public static CompletableFuture<List<String>> requestCompletion(String content) {
+    public static CompletableFuture<CompletionResult> requestCompletion(String content) {
         //#if MC >= 12006
         return PayloadedNetworking.requestCompletion(content);
         //#else

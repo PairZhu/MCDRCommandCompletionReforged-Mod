@@ -20,6 +20,7 @@
 
 package icu.takeneko.mccr.networking;
 
+import icu.takeneko.mccr.CompletionResult;
 import icu.takeneko.mccr.Mod;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
@@ -36,11 +37,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class LegacyNetworking {
 
-    private static final Long2ReferenceMap<CompletableFuture<List<String>>> futures = new Long2ReferenceLinkedOpenHashMap<>();
+    private static final Long2ReferenceMap<CompletableFuture<CompletionResult>> futures = new Long2ReferenceLinkedOpenHashMap<>();
     private static final AtomicLong requestId = new AtomicLong();
 
-    public static CompletableFuture<List<String>> requestCompletion(String content) {
-        CompletableFuture<List<String>> future = new CompletableFuture<>();
+    public static CompletableFuture<CompletionResult> requestCompletion(String content) {
+        CompletableFuture<CompletionResult> future = new CompletableFuture<>();
         long id = requestId.addAndGet(1);
         futures.put(id, future);
         //#if MC < 12006
@@ -91,14 +92,17 @@ public class LegacyNetworking {
     public static final class ClientboundCompletionResultPacket {
         public static final ResourceLocation ID = Mod.location("completion_result");
         private final List<String> content;
+        private final String hint;
         private final long session;
 
-        public ClientboundCompletionResultPacket(List<String> content, long session) {
+        public ClientboundCompletionResultPacket(List<String> content, String hint, long session) {
             this.content = content;
             this.session = session;
+            this.hint = hint;
         }
 
         public ClientboundCompletionResultPacket(FriendlyByteBuf buf) {
+            this.hint = buf.readUtf(32767);
             int len = buf.readVarInt();
             this.content = new ArrayList<>();
             for (int i = 0; i < len; i++) {
@@ -108,13 +112,14 @@ public class LegacyNetworking {
         }
 
         public void handle() {
-            CompletableFuture<List<String>> future = futures.get(this.session);
+            CompletableFuture<CompletionResult> future = futures.get(this.session);
             if (future != null) {
-                future.complete(this.content);
+                future.complete(new CompletionResult(this.content, this.hint));
             }
         }
 
         public void encode(FriendlyByteBuf buf) {
+            buf.writeUtf(this.hint);
             buf.writeVarInt(content.size());
             for (String s : content) {
                 buf.writeUtf(s);

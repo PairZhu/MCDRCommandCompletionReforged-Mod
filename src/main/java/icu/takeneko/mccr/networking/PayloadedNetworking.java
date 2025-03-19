@@ -23,6 +23,7 @@ package icu.takeneko.mccr.networking;
 
 //#if MC >= 12006
 
+import icu.takeneko.mccr.CompletionResult;
 import icu.takeneko.mccr.CompletionService;
 import icu.takeneko.mccr.Mod;
 import io.netty.buffer.ByteBuf;
@@ -40,11 +41,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PayloadedNetworking {
-    private static final Long2ReferenceMap<CompletableFuture<List<String>>> futures = new Long2ReferenceLinkedOpenHashMap<>();
+    private static final Long2ReferenceMap<CompletableFuture<CompletionResult>> futures = new Long2ReferenceLinkedOpenHashMap<>();
     private static final AtomicLong requestId = new AtomicLong();
 
-    public static CompletableFuture<List<String>> requestCompletion(String content) {
-        CompletableFuture<List<String>> future = new CompletableFuture<>();
+    public static CompletableFuture<CompletionResult> requestCompletion(String content) {
+        CompletableFuture<CompletionResult> future = new CompletableFuture<>();
         long id = requestId.addAndGet(1);
         futures.put(id, future);
         ClientPlayNetworking.send(new ServerboundRequestCompletionPacket(content, id));
@@ -69,20 +70,23 @@ public class PayloadedNetworking {
         public void handle(ServerPlayNetworking.Context context) {
             CompletionService.requestCompletion(context.player(), content)
                 .thenAccept(it -> context.responseSender()
-                    .sendPacket(new ClientboundCompletionResultPacket(it, this.session))
+                    .sendPacket(new ClientboundCompletionResultPacket(it.getCompletion(), it.getHint(), this.session))
                 );
         }
     }
 
-    public record ClientboundCompletionResultPacket(List<String> content, long session) implements CustomPacketPayload {
+    public record ClientboundCompletionResultPacket(List<String> content, String hint, long session) implements CustomPacketPayload {
         public static final Type<ClientboundCompletionResultPacket> TYPE = new Type<>(Mod.location("completion_result"));
         public static final StreamCodec<ByteBuf, ClientboundCompletionResultPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.STRING_UTF8),
             ClientboundCompletionResultPacket::content,
+            ByteBufCodecs.STRING_UTF8,
+            ClientboundCompletionResultPacket::hint,
             ByteBufCodecs.VAR_LONG,
             ClientboundCompletionResultPacket::session,
             ClientboundCompletionResultPacket::new
         );
+
 
         @Override
         public Type<? extends CustomPacketPayload> type() {
@@ -90,9 +94,9 @@ public class PayloadedNetworking {
         }
 
         public void handle(ClientPlayNetworking.Context context) {
-            CompletableFuture<List<String>> future = futures.get(this.session);
+            CompletableFuture<CompletionResult> future = futures.get(this.session);
             if (future != null) {
-                future.complete(this.content);
+                future.complete(new CompletionResult(this.content, this.hint));
             }
         }
     }

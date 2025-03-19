@@ -32,7 +32,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class CompletionService {
@@ -41,7 +40,7 @@ public class CompletionService {
     private static final HttpClient client = HttpClient.newBuilder().build();
     public static final Gson gson = new Gson();
 
-    public static CompletableFuture<List<String>> requestCompletion(ServerPlayer player, String command) {
+    public static CompletableFuture<CompletionResult> requestCompletion(ServerPlayer player, String command) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -54,8 +53,7 @@ public class CompletionService {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
             return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(it -> gson.fromJson(it.body(), String[].class))
-                .thenApply(List::of);
+                .thenApply(it -> gson.fromJson(it.body(), CompletionResult.class));
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

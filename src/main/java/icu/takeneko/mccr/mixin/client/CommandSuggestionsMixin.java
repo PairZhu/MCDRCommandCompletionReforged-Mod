@@ -22,6 +22,7 @@ package icu.takeneko.mccr.mixin.client;
 
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import icu.takeneko.mccr.CompletionResult;
 import icu.takeneko.mccr.networking.Networking;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
@@ -34,7 +35,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(CommandSuggestions.class)
@@ -78,12 +78,13 @@ public abstract class CommandSuggestionsMixin {
         }
     }
 
-    public void mccr$applySuggestion(String command, List<String> suggestion) {
+    public void mccr$applySuggestion(String command, CompletionResult suggestion) {
         if (this.suggestions == null || !this.keepSuggestions) {
-            this.pendingSuggestions = SharedSuggestionProvider.suggest(suggestion, new SuggestionsBuilder(command, getLastWordIndex(command)));
+            this.pendingSuggestions = SharedSuggestionProvider.suggest(suggestion.getCompletion(), new SuggestionsBuilder(command, getLastWordIndex(command)));
             this.pendingSuggestions.thenRun(() -> {
                 if (this.pendingSuggestions.isDone()) {
                     this.showSuggestions(true);
+                    this.input.setSuggestion(suggestion.getHint());
                 }
             });
         }
