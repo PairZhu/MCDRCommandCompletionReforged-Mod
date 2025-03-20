@@ -101,7 +101,7 @@ public abstract class CommandSuggestionsMixin {
     )
     private void onSuggestCommand(CallbackInfo ci) {
         // do nothing when server hasn't networking channel
-        if (!ClientPlayNetworking.canSend(Mod.location("request_completion"))) {
+        if (!ClientPlayNetworking.canSend(Mod.location("request_completion")) || this.minecraft.isSingleplayer()) {
             return;
         }
         String text = this.input.getValue();
