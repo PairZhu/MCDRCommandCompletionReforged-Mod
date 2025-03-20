@@ -23,14 +23,15 @@ package icu.takeneko.mccr.mixin.client;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import icu.takeneko.mccr.CompletionResult;
+import icu.takeneko.mccr.Mod;
 import icu.takeneko.mccr.networking.Networking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -38,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -85,6 +87,10 @@ public abstract class CommandSuggestionsMixin {
     @Shadow
     private int commandUsagePosition;
 
+    @Shadow
+    @Final
+    private Minecraft minecraft;
+
     @Inject(
         method = "updateCommandInfo()V",
         at = @At(
@@ -94,43 +100,51 @@ public abstract class CommandSuggestionsMixin {
         cancellable = true
     )
     private void onSuggestCommand(CallbackInfo ci) {
+        // do nothing when server hasn't networking channel
+        if (!ClientPlayNetworking.canSend(Mod.location("request_completion"))) {
+            return;
+        }
         String text = this.input.getValue();
         if (text.startsWith("!") || text.startsWith("！")) {
             text = text.replace('！', '!');
             String command = text.substring(0, this.input.getCursorPosition());
-            Networking.requestCompletion(command)
-                .thenAccept(it -> {
-                    Minecraft.getInstance().execute(() -> mccr$applySuggestion(command, it));
-                });
-            ci.cancel();
+            if (!this.keepSuggestions) {
+                Networking.requestCompletion(command)
+                    .thenAccept(it -> this.minecraft.execute(() -> mccr$applySuggestion(command, it)));
+                ci.cancel();
+            }
         }
     }
 
+    @Unique
     public void mccr$applySuggestion(String command, CompletionResult suggestion) {
-        if (this.suggestions == null || !this.keepSuggestions) {
-            if (suggestion.getCompletion().isEmpty()) {
-                this.suggestions = null;
-                FormattedCharSequence text = FormattedCharSequence.forward(suggestion.getHint(), Style.EMPTY.withColor(ChatFormatting.GRAY));
-                this.commandUsage.clear();
-                this.commandUsage.add(text);
-                int width = this.font.width(text);
-                this.commandUsageWidth = width;
-                this.commandUsagePosition = Mth.clamp(
-                    this.input.getScreenX(getLastWordIndex(command)),
-                    0,
-                    this.input.getScreenX(0) + this.input.getInnerWidth() - width
-                );
-
-            } else {
-                this.pendingSuggestions = SharedSuggestionProvider.suggest(suggestion.getCompletion(), new SuggestionsBuilder(command, getLastWordIndex(command)));
-                this.pendingSuggestions.thenRun(() -> {
-                    if (this.pendingSuggestions.isDone()) {
-                        this.commandUsage.clear();
-                        this.showSuggestions(true);
-                    }
-                });
+        this.input.setSuggestion(null);
+        this.pendingSuggestions = null;
+        this.suggestions = null;
+        if (suggestion.getCompletion().isEmpty()) {
+            if (suggestion.getHint().isEmpty()) {
+                return;
             }
+            FormattedCharSequence text = FormattedCharSequence.forward(suggestion.getHint(), Style.EMPTY.withColor(ChatFormatting.GRAY));
+            this.commandUsage.clear();
+            this.commandUsage.add(text);
+            int width = this.font.width(text);
+            this.commandUsageWidth = width;
+            this.commandUsagePosition = Mth.clamp(
+                this.input.getScreenX(getLastWordIndex(command)),
+                0,
+                this.input.getScreenX(0) + this.input.getInnerWidth() - width
+            );
+        } else {
+            this.pendingSuggestions = SharedSuggestionProvider.suggest(suggestion.getCompletion(), new SuggestionsBuilder(command, getLastWordIndex(command)));
+            this.pendingSuggestions.thenRun(() -> {
+                if (this.pendingSuggestions.isDone()) {
+                    this.commandUsage.clear();
+                    this.showSuggestions(false);
+                }
+            });
         }
+
     }
 
 }
