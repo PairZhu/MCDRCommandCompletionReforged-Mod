@@ -23,7 +23,9 @@ package icu.takeneko.mccr.mixin.client;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import icu.takeneko.mccr.CompletionResult;
+import icu.takeneko.mccr.Mod;
 import icu.takeneko.mccr.networking.Networking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -98,6 +100,10 @@ public abstract class CommandSuggestionsMixin {
         cancellable = true
     )
     private void onSuggestCommand(CallbackInfo ci) {
+        // do nothing when server hasn't networking channel
+        if (!ClientPlayNetworking.canSend(Mod.location("request_completion"))) {
+            return;
+        }
         String text = this.input.getValue();
         if (text.startsWith("!") || text.startsWith("！")) {
             text = text.replace('！', '!');
@@ -105,8 +111,8 @@ public abstract class CommandSuggestionsMixin {
             if (!this.keepSuggestions) {
                 Networking.requestCompletion(command)
                     .thenAccept(it -> this.minecraft.execute(() -> mccr$applySuggestion(command, it)));
+                ci.cancel();
             }
-            ci.cancel();
         }
     }
 
