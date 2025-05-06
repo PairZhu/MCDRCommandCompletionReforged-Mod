@@ -22,7 +22,7 @@ package icu.takeneko.mccr.mixin.client;
 
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import icu.takeneko.mccr.CompletionResult;
+import icu.takeneko.mccr.completion.CompletionResult;
 import icu.takeneko.mccr.Mod;
 import icu.takeneko.mccr.networking.Networking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

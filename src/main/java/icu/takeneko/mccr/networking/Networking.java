@@ -21,14 +21,13 @@
 
 package icu.takeneko.mccr.networking;
 
-import icu.takeneko.mccr.CompletionResult;
+import icu.takeneko.mccr.completion.CompletionResult;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 //#if MC >= 12006
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class Networking {

@@ -24,18 +24,32 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import icu.takeneko.mccr.CompletionService;
+import icu.takeneko.mccr.completion.CompletionService;
 import net.minecraft.commands.CommandSourceStack;
+
+import static net.minecraft.commands.Commands.literal;
 
 public class Commands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(LiteralArgumentBuilder.<CommandSourceStack>literal("configureCompletion")
-            .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("endpoint", StringArgumentType.greedyString())
-                .executes(context -> {
-                    CompletionService.setEndpoint(context.getArgument("endpoint", String.class));
-                    return 1;
-                })
-            )
-        );
+            .then(literal("stdio").executes(it -> {
+                CompletionService.configureMode(
+                    CompletionService.Mode.STDIO,
+                    null
+                );
+                return 0;
+            }))
+            .then(literal("http")
+                .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("endpoint", StringArgumentType.greedyString())
+                    .executes(context -> {
+                        CompletionService.configureMode(
+                            CompletionService.Mode.HTTP,
+                            context.getArgument("endpoint", String.class)
+                        );
+                        return 1;
+                    })
+                )
+            ));
+
     }
 }

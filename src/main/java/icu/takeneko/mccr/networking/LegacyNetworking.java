@@ -20,7 +20,7 @@
 
 package icu.takeneko.mccr.networking;
 
-import icu.takeneko.mccr.CompletionResult;
+import icu.takeneko.mccr.completion.CompletionResult;
 import icu.takeneko.mccr.Mod;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
@@ -69,7 +69,7 @@ public class LegacyNetworking {
 
         public void handle(MinecraftServer server, ServerPlayer player, PacketSender sender) {
             //#if MC < 12006
-            //$$ icu.takeneko.mccr.CompletionService.requestCompletion(player, content)
+            //$$ icu.takeneko.mccr.completion.CompletionService.requestCompletion(player, content)
             //$$     .thenAccept(it -> {
             //$$             FriendlyByteBuf buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
             //$$             new ClientboundCompletionResultPacket(it.getCompletion(), it.getHint(), this.session).encode(buf);

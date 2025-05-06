@@ -36,3 +36,5 @@ permission.yml
 logs/
 plugins/
 server/
+pb_files/
+config/

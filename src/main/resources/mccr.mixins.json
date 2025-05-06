@@ -3,7 +3,9 @@
   "minVersion": "0.8",
   "package": "icu.takeneko.mccr.mixin",
   "compatibilityLevel": "${compatibility_level}",
+  "plugin": "icu.takeneko.mccr.mixin.MixinPluginStealingOriginalStdout",
   "mixins": [
+    "ServerConsoleHandlerMixin"
   ],
   "client": [
     "client.CommandSuggestionsMixin"

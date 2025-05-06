@@ -18,7 +18,7 @@
  * along with MCDRCommandCompletionReforged.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package icu.takeneko.mccr;
+package icu.takeneko.mccr.completion;
 
 import java.util.List;
 
@@ -37,5 +37,17 @@ public class CompletionResult {
 
     public String getHint() {
         return hint;
+    }
+
+    public class StdioCompletionResult extends CompletionResult {
+        private final long id;
+        public StdioCompletionResult(List<String> completion, String hint, long id) {
+            super(completion, hint);
+            this.id = id;
+        }
+
+        public long getId() {
+            return id;
+        }
     }
 }

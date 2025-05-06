@@ -10,8 +10,8 @@
     "DancingSnow"
   ],
   "contact": {
-    "homepage": "https://modrinth.com",
-    "sources": "https://github.com/Fallen-Breath/fabric-mod-template"
+    "homepage": "https://modrinth.com/mod/mccr",
+    "sources": "https://github.com/ZhuRuoLing/MCDRCommandCompletionReforged-Mod"
   },
 
   "icon": "assets/mccr/icon.png",

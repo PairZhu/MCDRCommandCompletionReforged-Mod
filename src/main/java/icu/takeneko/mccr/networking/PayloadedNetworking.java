@@ -23,8 +23,8 @@ package icu.takeneko.mccr.networking;
 
 //#if MC >= 12006
 
-import icu.takeneko.mccr.CompletionResult;
-import icu.takeneko.mccr.CompletionService;
+import icu.takeneko.mccr.completion.CompletionResult;
+import icu.takeneko.mccr.completion.CompletionService;
 import icu.takeneko.mccr.Mod;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
